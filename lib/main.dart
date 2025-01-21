@@ -1,13 +1,12 @@
-import 'package:cubit_statemanagement/counter_cubit.dart';
+import 'package:cubit_statemanagement/list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'counter_state.dart';
+import 'list_state.dart';
 import 'next_page.dart';
 
 void main() {
   runApp(BlocProvider(
-      create: (context) => CounterCubit(),
+      create: (context) =>ListCubit(),
     child: MyApp(),
   ));
 }
@@ -38,36 +37,35 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Home Page"),),
-      body: Center(
-        child: Column(
-          children: [
-            Center(child: Text("this many times you tab button")),
-
-            BlocBuilder<CounterCubit,CounterState>(builder: (context,state){
-              return Text("${state.count}",style: TextStyle(fontSize: 30),);
-
-            }),
-
-          ],
-        ),
+      body: BlocBuilder<ListCubit,ListState>(
+          builder: (context,state){
+            return ListView.builder(
+              itemCount: state.noteList.length,
+                itemBuilder: (ctx,index){
+                  return ListTile(
+                    leading: Text("$index+1"),
+                    title: Text("${state.noteList[index]["title"]}"),
+                    subtitle:Text("${state.noteList[index]["desc"]}"),
+                    trailing: InkWell(
+                      onTap: (){
+                        BlocProvider.of<ListCubit>(context).deleteNote(index);
+                        // context.read<ListCubit>().deleteNote(index);
+                      },
+                        child: Icon(Icons.delete)),
+                  );
+                }
+            );
+          }
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => NextPage(),));
+        },
+        child: Icon(Icons.navigate_next),
       ),
 
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          FloatingActionButton(
-            onPressed: (){
-              BlocProvider.of<CounterCubit>(context).decrement();
 
-            },
-            child: Icon(Icons.remove),),
-          FloatingActionButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => NextPage(),));
-          },
-            child: Icon(Icons.navigate_next),)
-        ],
-      ),
-    ); ;
+    );
   }
 }
 

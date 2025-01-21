@@ -1,10 +1,11 @@
-import 'package:cubit_statemanagement/counter_cubit.dart';
-import 'package:cubit_statemanagement/counter_state.dart';
+import 'package:cubit_statemanagement/list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NextPage extends StatelessWidget {
-  const NextPage({super.key});
+  var titleController=TextEditingController();
+  var descController=TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -12,24 +13,30 @@ class NextPage extends StatelessWidget {
       appBar:  AppBar(
         title: Text("Next Page"),
       ),
-      body: Container(
-        child: Column(
-          children: [
-            Center(child: Text("this many times you tab button")),
-           BlocBuilder<CounterCubit,CounterState>(builder: (ctx,state){
-             return Text("${state.count}",style: TextStyle(fontSize: 30),);
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Text("Add Note"),
+          TextField(controller: titleController,),
+          TextField(controller: descController,),
+          ElevatedButton(
+              onPressed: (){
+                var mTitle=titleController.text.toString();
+                var mDesc=descController.text.toString();
+               if(mTitle!="" && mDesc!=""){
+                 context.read<ListCubit>().addNote(
+                     {
+                       "title":mTitle,
+                       "desc": mDesc
+                     }
+                 );
+               }
+              },
+              child:Text("ADD")
+          )
+        ],
+      )
 
-           })
-
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: (){
-            BlocProvider.of<CounterCubit>(context).increment();
-          },
-        child: Icon(Icons.add),
-      ),
     );
   }
 }
