@@ -31,37 +31,102 @@ class MyApp extends StatelessWidget {
 
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  var titleController=TextEditingController();
+  var descController=TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Home Page"),),
-      body: BlocBuilder<ListCubit,ListState>(
-          builder: (context,state){
-            return ListView.builder(
-              itemCount: state.noteList.length,
-                itemBuilder: (ctx,index){
-                  return ListTile(
-                    leading: Text("$index+1"),
-                    title: Text("${state.noteList[index]["title"]}"),
-                    subtitle:Text("${state.noteList[index]["desc"]}"),
-                    trailing: InkWell(
-                      onTap: (){
-                        BlocProvider.of<ListCubit>(context).deleteNote(index);
-                        // context.read<ListCubit>().deleteNote(index);
-                      },
-                        child: Icon(Icons.delete)),
-                  );
-                }
-            );
-          }
+      body: Center(
+        child: BlocBuilder<ListCubit,ListState>(
+            builder: (context,state){
+             if(state.isLoading){
+               return Center(child: CircularProgressIndicator());
+             }else if (state.isEroor){
+               return Center(child: Text("${state.errorMsg}"));
+             }else{
+               return state.noteList.isNotEmpty ? ListView.builder(
+                   itemCount: state.noteList.length,
+                   itemBuilder: (ctx,index){
+                     return InkWell(
+                        onTap: (){
+                          titleController.text=state.noteList[index]["title"];
+                          descController.text=state.noteList[index]["desc"];
+
+                          showModalBottomSheet(context: context,
+                              builder: (ctx){
+                            return Container(
+                              child: Column(children: [
+                                Text("UPDATE"),
+                                TextField(controller: titleController,),
+                                TextField(controller: descController,),
+                                ElevatedButton(onPressed: (){
+                                 context.read<ListCubit>().update({
+                                   "title":titleController.text.toString(),
+                                   "desc":descController.text.toString()
+                                 }, index);
+
+                                  titleController.clear();
+                                  descController.clear();
+                                  Navigator.pop(context);
+                                },
+                                    child: Text("Update"))
+
+                              ],),
+                            );
+                              }
+                          );
+                        },
+                       child: ListTile(
+                         leading: Text("${index+1}"),
+                         title: Text("${state.noteList[index]["title"]}"),
+                         subtitle:Text("${state.noteList[index]["desc"]}"),
+                         trailing: InkWell(
+                             onTap: (){
+                               BlocProvider.of<ListCubit>(context).deleteNote(index);
+                               // context.read<ListCubit>().deleteNote(index);
+                             },
+                             child: Icon(Icons.delete)),
+                       ),
+                     );
+                   }
+               ) :Text("No Data Found");
+             }
+            }
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => NextPage(),));
+          showModalBottomSheet(context: context,
+              builder:(ctx){
+            return  Container(
+              child: Column(children: [
+                Text("ADD"),
+                TextField(controller: titleController,),
+                TextField(controller: descController,),
+                ElevatedButton(onPressed: (){
+                  var mTitle=titleController.text.toString();
+                  var mDesc=descController.text.toString();
+                  context.read<ListCubit>().addNote({
+                    "title":mTitle,
+                    "desc":mDesc
+                  });
+                  titleController.clear();
+                  descController.clear();
+                  Navigator.pop(context);
+                },
+                    child: Text("ADD"))
+
+              ],),
+            );
+              }
+          );
+          // Navigator.push(context, MaterialPageRoute(builder: (context) => NextPage(),))
+
         },
-        child: Icon(Icons.navigate_next),
+        child: Icon(Icons.add),
       ),
 
 
