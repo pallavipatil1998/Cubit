@@ -2,7 +2,6 @@ import 'package:cubit_statemanagement/list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'list_state.dart';
-import 'next_page.dart';
 
 void main() {
   runApp(BlocProvider(
@@ -50,46 +49,16 @@ class HomePage extends StatelessWidget {
                return state.noteList.isNotEmpty ? ListView.builder(
                    itemCount: state.noteList.length,
                    itemBuilder: (ctx,index){
-                     return InkWell(
-                        onTap: (){
-                          titleController.text=state.noteList[index]["title"];
-                          descController.text=state.noteList[index]["desc"];
-
-                          showModalBottomSheet(context: context,
-                              builder: (ctx){
-                            return Container(
-                              child: Column(children: [
-                                Text("UPDATE"),
-                                TextField(controller: titleController,),
-                                TextField(controller: descController,),
-                                ElevatedButton(onPressed: (){
-                                 context.read<ListCubit>().update({
-                                   "title":titleController.text.toString(),
-                                   "desc":descController.text.toString()
-                                 }, index);
-
-                                  titleController.clear();
-                                  descController.clear();
-                                  Navigator.pop(context);
-                                },
-                                    child: Text("Update"))
-
-                              ],),
-                            );
-                              }
-                          );
-                        },
-                       child: ListTile(
-                         leading: Text("${index+1}"),
-                         title: Text("${state.noteList[index]["title"]}"),
-                         subtitle:Text("${state.noteList[index]["desc"]}"),
-                         trailing: InkWell(
-                             onTap: (){
-                               BlocProvider.of<ListCubit>(context).deleteNote(index);
-                               // context.read<ListCubit>().deleteNote(index);
-                             },
-                             child: Icon(Icons.delete)),
-                       ),
+                     return ListTile(
+                       leading: Text("${index+1}"),
+                       title: Text("${state.noteList[index]["title"]}"),
+                       subtitle:Text("${state.noteList[index]["desc"]}"),
+                       trailing: InkWell(
+                           onTap: (){
+                             BlocProvider.of<ListCubit>(context).deleteNote(index);
+                             // context.read<ListCubit>().deleteNote(index);
+                           },
+                           child: Icon(Icons.delete)),
                      );
                    }
                ) :Text("No Data Found");
@@ -123,7 +92,6 @@ class HomePage extends StatelessWidget {
             );
               }
           );
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => NextPage(),))
 
         },
         child: Icon(Icons.add),
