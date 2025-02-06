@@ -49,16 +49,46 @@ class HomePage extends StatelessWidget {
                return state.noteList.isNotEmpty ? ListView.builder(
                    itemCount: state.noteList.length,
                    itemBuilder: (ctx,index){
-                     return ListTile(
-                       leading: Text("${index+1}"),
-                       title: Text("${state.noteList[index]["title"]}"),
-                       subtitle:Text("${state.noteList[index]["desc"]}"),
-                       trailing: InkWell(
-                           onTap: (){
-                             BlocProvider.of<ListCubit>(context).deleteNote(index);
-                             // context.read<ListCubit>().deleteNote(index);
-                           },
-                           child: Icon(Icons.delete)),
+                     return InkWell(
+                       onTap: (){
+                         titleController.text=state.noteList[index]["title"];
+                         descController.text=state.noteList[index]["desc"];
+                         showModalBottomSheet(context: context,
+                             builder: (ctx){
+                           return Container(
+                             child: Column(children: [
+                               Text("UPDATE"),
+                               TextField(controller: titleController,),
+                               TextField(controller: descController,),
+                               ElevatedButton(onPressed: (){
+                                 var mTitle=titleController.text.toString();
+                                 var mDesc=descController.text.toString();
+                                 context.read<ListCubit>().updateNote({
+                                 "title" : mTitle,
+                                  "desc" :mDesc
+                                 }, index);
+                                 titleController.clear();
+                                 descController.clear();
+                                 Navigator.pop(context);
+                               },
+                                   child: Text("UPDATE"))
+
+                             ],),
+                           );
+                             }
+                         );
+                       },
+                       child: ListTile(
+                         leading: Text("${index+1}"),
+                         title: Text("${state.noteList[index]["title"]}"),
+                         subtitle:Text("${state.noteList[index]["desc"]}"),
+                         trailing: InkWell(
+                             onTap: (){
+                               BlocProvider.of<ListCubit>(context).deleteNote(index);
+                               // context.read<ListCubit>().deleteNote(index);
+                             },
+                             child: Icon(Icons.delete)),
+                       ),
                      );
                    }
                ) :Text("No Data Found");

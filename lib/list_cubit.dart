@@ -35,6 +35,12 @@ void addNote(Map<String,dynamic> note){
   
 }
 
+void updateNote(Map<String,dynamic> note ,int index){
+  var listData=state.noteList;
+  listData[index]=note;
+  emit(ListState(noteList: listData));
+}
+
 
 void deleteNote(int index){
   var listData=state.noteList;
